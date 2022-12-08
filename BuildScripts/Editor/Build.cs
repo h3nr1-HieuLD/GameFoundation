@@ -104,7 +104,7 @@ public static class Build
 
             PlayerSettings.SetScriptingBackend(platform.BuildTargetGroup, scriptingBackend);
             SetApplicationVersion();
-            BuildAddressable(platform);
+            BuildAddressable();
 
             // If we're not in batch mode, we can do this
             if (!InternalEditorUtility.inBatchMode)
@@ -133,10 +133,9 @@ public static class Build
     /// <summary>
     /// Clean Addressable before build and init FMOD
     /// </summary>
-    /// <param name="buildTargetInfo"></param>
-    private static void BuildAddressable(BuildTargetInfo buildTargetInfo)
+    private static void BuildAddressable()
     {
-        AddressableAssetSettings.CleanPlayerContent(AddressableAssetSettingsDefaultObject.Settings.ActivePlayerDataBuilder);
+        AddressableAssetSettings.CleanPlayerContent();
         AddressableAssetSettings.BuildPlayerContent();
     }
 
