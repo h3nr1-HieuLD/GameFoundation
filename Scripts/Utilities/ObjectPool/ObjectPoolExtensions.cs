@@ -96,5 +96,7 @@ namespace GameFoundation.Scripts.Utilities.ObjectPool
         public static void DestroyPool(this GameObject prefab) { ObjectPoolManager.Instance.DestroyPool(prefab); }
 
         public static void DestroyPool<T>(this T prefab) where T : Component { ObjectPoolManager.Instance.DestroyPool(prefab.gameObject); }
+
+        public static void DestroyObject(this GameObject gameObject) { ObjectPoolManager.Instance.DestroyObject(gameObject);}
     }
 }

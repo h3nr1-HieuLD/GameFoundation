@@ -318,7 +318,13 @@ namespace GameFoundation.Scripts.Utilities.ObjectPool
                 Object.Destroy(pool.gameObject);
             }
         }
-
+        
         #endregion
+
+        public void DestroyObject(GameObject gameObject)
+        {
+            this.spawnedObjToObjectPool.Remove(gameObject);
+            Object.Destroy(gameObject);
+        }
     }
 }
