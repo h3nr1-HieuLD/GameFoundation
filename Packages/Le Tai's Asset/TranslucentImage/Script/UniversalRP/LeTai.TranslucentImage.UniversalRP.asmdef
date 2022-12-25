@@ -2,9 +2,10 @@
     "name": "LeTai.TranslucentImage.UniversalRP",
     "rootNamespace": "",
     "references": [
-        "Unity.RenderPipelines.Core.Runtime",
-        "Unity.RenderPipelines.Universal.Runtime",
-        "LeTai.TranslucentImage.Scripts"
+        "GUID:df380645f10b7bc4b97d4f5eb6303d95",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9",
+        "GUID:ff218ee40fe2b8648ab3234d56415557",
+        "GUID:5053893e57086c14aa174f7ae13a36ee"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
