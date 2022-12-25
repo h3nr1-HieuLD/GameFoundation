@@ -323,6 +323,11 @@ namespace GameFoundation.Scripts.Utilities.ObjectPool
 
         public void DestroyObject(GameObject gameObject)
         {
+            if (this.spawnedObjToObjectPool.TryGetValue(gameObject, out var pool))
+            {
+                pool.spawnedObjects.Remove(gameObject);
+            }
+
             this.spawnedObjToObjectPool.Remove(gameObject);
             Object.Destroy(gameObject);
         }
