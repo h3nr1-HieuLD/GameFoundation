@@ -7,7 +7,6 @@ namespace GameFoundation.Scripts.BlueprintFlow.BlueprintReader
     using System.Threading.Tasks;
     using GameFoundation.Scripts.BlueprintFlow.BlueprintReader.CsvHelper;
     using GameFoundation.Scripts.Utilities.Extension;
-    using GameFoundation.Scripts.Utilities.Utils;
     using Sylvan.Data.Csv;
 
     /// <summary> Attribute used to mark the Header Key for GenericDatabaseByRow </summary>
@@ -30,8 +29,9 @@ namespace GameFoundation.Scripts.BlueprintFlow.BlueprintReader
         public virtual async Task DeserializeFromCsv(string rawCsv)
         {
             this.CleanUp();
+            var readerOption = new CsvDataReaderOptions() { HasHeaders = true, Delimiter = ',', BufferSize = 0x12800 };
             await using var csv =
-                await CsvDataReader.CreateAsync(new StringReader(rawCsv), CsvHelper.CsvHelper.CsvDataReaderOptions);
+                await CsvDataReader.CreateAsync(new StringReader(rawCsv), readerOption);
             while (await csv.ReadAsync()) this.Add(csv);
         }
 
