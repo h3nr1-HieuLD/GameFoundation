@@ -4,6 +4,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
     using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
+    using DG.Tweening;
     using GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.Presenter;
     using GameFoundation.Scripts.UIModule.ScreenFlow.Signals;
     using LeTai.Asset.TranslucentImage;
@@ -83,10 +84,11 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
 
             if (!enable)
             {
-                this.blurImage.enabled = false;
+                this.blurImage.DOFade(0, 0.5f).OnComplete(() => this.blurImage.enabled = false);
                 return;
             }
 
+            this.blurImage.DOFade(1, 0.5f);
             this.showImageCoroutine = this.StartCoroutine(this.ShowImageInternal());
         }
 

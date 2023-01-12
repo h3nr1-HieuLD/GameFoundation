@@ -1,6 +1,7 @@
 namespace GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.Presenter
 {
     using System.Threading.Tasks;
+    using Cysharp.Threading.Tasks;
     using GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.View;
     using GameFoundation.Scripts.UIModule.ScreenFlow.Signals;
     using GameFoundation.Scripts.Utilities.LogService;
@@ -10,7 +11,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.Presenter
     {
         public BasePopupPresenter(SignalBus signalBus) : base(signalBus) { }
 
-        public override async Task OpenViewAsync()
+        public override async UniTask OpenViewAsync()
         {
             this.BindData();
 
@@ -18,15 +19,17 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.Presenter
             this.ScreenStatus = ScreenStatus.Opened;
             this.SignalBus.Fire(new ScreenShowSignal() { ScreenPresenter  = this });
             this.SignalBus.Fire(new PopupShowedSignal() { ScreenPresenter = this });
+            // wait to end of frame then open screen view, take time to blur background capture last screen
+            await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
             await this.View.Open();
         }
 
-        public override async Task CloseViewAsync()
+        public override async UniTask CloseViewAsync()
         {
             if (this.ScreenStatus == ScreenStatus.Closed) return;
             this.ScreenStatus = ScreenStatus.Closed;
-            this.SignalBus.Fire(new PopupHiddenSignal() { ScreenPresenter = this });
             await this.View.Close();
+            this.SignalBus.Fire(new PopupHiddenSignal() { ScreenPresenter = this });
             this.SignalBus.Fire(new ScreenCloseSignal() { ScreenPresenter = this });
             this.Dispose();
         }
@@ -47,7 +50,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.Presenter
 
         protected BasePopupPresenter(SignalBus signalBus, ILogService logService) : base(signalBus) { this.logService = logService; }
 
-        public async Task OpenView(TModel model)
+        public async UniTask OpenView(TModel model)
         {
             if (model != null)
             {
@@ -57,7 +60,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.BaseScreen.Presenter
             await this.OpenViewAsync();
         }
 
-        public override async Task OpenViewAsync()
+        public override async UniTask OpenViewAsync()
         {
             if (this.Model != null)
             {

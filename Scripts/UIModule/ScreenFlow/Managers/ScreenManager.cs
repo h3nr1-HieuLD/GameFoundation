@@ -13,6 +13,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
     using GameFoundation.Scripts.Utilities.Extension;
     using GameFoundation.Scripts.Utilities.LogService;
     using UniRx;
+    using UnityEditor;
     using UnityEngine;
     using Zenject;
 
@@ -38,7 +39,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
         /// <summary>
         /// Close a screen on top
         /// </summary>
-        public Task CloseCurrentScreen();
+        public UniTask CloseCurrentScreen();
 
         /// <summary>
         /// Close all screen on current scene
@@ -87,7 +88,6 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
         private Dictionary<Type, IScreenPresenter>       typeToLoadedScreenPresenter;
         private Dictionary<Type, Task<IScreenPresenter>> typeToPendingScreen;
 
-
         private SignalBus    signalBus;
         private RootUICanvas rootUICanvas;
         private ILogService  logService;
@@ -129,7 +129,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
         public Transform CurrentRootScreen  { get; set; }
         public Transform CurrentHiddenRoot  { get; set; }
         public Transform CurrentOverlayRoot { get; set; }
-        
+
         public async UniTask<T> OpenScreen<T>() where T : IScreenPresenter
         {
             var nextScreen = await this.GetScreen<T>();
@@ -189,7 +189,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
             }
         }
 
-        public async Task CloseCurrentScreen()
+        public async UniTask CloseCurrentScreen()
         {
             if (this.activeScreens.Count > 0)
                 await this.activeScreens.Last().CloseViewAsync();
@@ -204,15 +204,16 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
                 screen.CloseViewAsync();
             }
 
-            this.CurrentActiveScreen.Value  = null;
-            this.previousActiveScreen = null;
+            this.CurrentActiveScreen.Value = null;
+            this.previousActiveScreen      = null;
         }
 
         public void CleanUpAllScreen()
         {
             this.activeScreens.Clear();
-            this.CurrentActiveScreen.Value  = null;
-            this.previousActiveScreen = null;
+            this.CurrentActiveScreen.Value = null;
+            this.previousActiveScreen      = null;
+
             foreach (var screen in this.typeToLoadedScreenPresenter)
             {
                 if (screen.Value.ScreenStatus != ScreenStatus.Opened) continue;
@@ -292,14 +293,21 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
         {
             var screenPresenter = signal.ScreenPresenter;
             var screenType      = screenPresenter.GetType();
+
             if (this.typeToLoadedScreenPresenter.ContainsKey(screenType)) return;
             this.typeToLoadedScreenPresenter.Add(screenType, screenPresenter);
             var screenInfo = screenPresenter.GetCustomAttribute<ScreenInfoAttribute>();
 
             var viewObj = this.CurrentRootScreen.Find(screenInfo.AddressableScreenPath);
+
             if (viewObj != null)
             {
                 screenPresenter.SetView(viewObj.GetComponent<IScreenView>());
+
+                if (signal.IncludingBindData)
+                {
+                    screenPresenter.BindData();
+                }
             }
             else
                 this.logService.Error($"The {screenInfo.AddressableScreenPath} object may be not instantiated in the RootUICanvas!!!");
@@ -340,6 +348,7 @@ namespace GameFoundation.Scripts.UIModule.ScreenFlow.Managers
             else
             {
                 Debug.Log("Show popup confirm quit app");
+
                 _ = this.OpenScreen<NotificationPopupPresenter, NotificationPopupModel>(new NotificationPopupModel()
                 {
                     Content        = "Do you really want to quit?",
