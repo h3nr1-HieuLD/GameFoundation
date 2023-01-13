@@ -104,7 +104,7 @@ public static class Build
 
             PlayerSettings.SetScriptingBackend(platform.BuildTargetGroup, scriptingBackend);
             SetApplicationVersion();
-            BuildAddressable();
+            BuildAddressable(platform);
 
             // If we're not in batch mode, we can do this
             if (!InternalEditorUtility.inBatchMode)
@@ -113,6 +113,7 @@ public static class Build
             }
 
             // Set up the build options
+            if (platform.Platform.Equals(PlatformWebGL)) options &= ~BuildOptions.Development; // can't build development for webgl, it make the build larger and cant gzip
             var buildPlayerOptions = new BuildPlayerOptions { scenes = SCENES, locationPathName = Path.GetFullPath($"../Build/Client/{platform.Platform}/{outputPath}"), target = platform.BuildTarget, options = options };
 
             if (!string.IsNullOrEmpty(scriptingDefineSymbols))
@@ -133,7 +134,8 @@ public static class Build
     /// <summary>
     /// Clean Addressable before build and init FMOD
     /// </summary>
-    private static void BuildAddressable()
+    /// <param name="buildTargetInfo"></param>
+    private static void BuildAddressable(BuildTargetInfo buildTargetInfo)
     {
         AddressableAssetSettings.CleanPlayerContent();
         AddressableAssetSettings.BuildPlayerContent();
@@ -169,7 +171,11 @@ public static class Build
 
             file.WriteLine();
 
+#if UNITY_2022_1_OR_NEWER
+            foreach (var buildFile in report.GetFiles())
+#else
             foreach (var buildFile in report.files)
+#endif
             {
                 file.WriteLine($"Role: {buildFile.role}, Size: {buildFile.size} bytes, Path: {buildFile.path}");
             }
