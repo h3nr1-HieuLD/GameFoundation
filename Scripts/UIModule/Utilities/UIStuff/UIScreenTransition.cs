@@ -57,7 +57,7 @@ namespace GameFoundation.Scripts.UIModule.Utilities.UIStuff
             }
             
             this.animationTask = new UniTaskCompletionSource();
-            this.SetLookInput(false);
+            // this.SetLookInput(false);
 
             anim.Play();
             return this.animationTask.Task;
